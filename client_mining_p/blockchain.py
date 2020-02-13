@@ -185,7 +185,7 @@ print(blockchain.hash(blockchain.last_block))
 
 #Modify the `mine` endpoint to instead receive and validate or reject a new proof sent by a client.
 # It should accept a POST
-@app.route('/mine', methods=['GET', 'POST'])
+@app.route('/mine', methods=['POST'])
 def mine():
 
     #Use `data = request.get_json()` to pull the data out of the POST
