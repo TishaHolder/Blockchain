@@ -190,37 +190,29 @@ def mine():
 
     #Use `data = request.get_json()` to pull the data out of the POST
     data = request.get_json()
+    #breakpoint()
 
-    #Check that 'proof', and 'id' are present   
-    #return a 400 error using `jsonify(response)` with a 'message'
-    if 'proof' not in data or 'id' not in data:
-        response = {"message": "proof and/or id are not present"}
-        return jsonify(response), 400
+    proof = data['proof']
 
-    #Check that 'proof', and 'id' are present
-    if 'proof' in data and 'id' in data:
-        proof = data['proof']
-        id = data['id']
+    last_block = blockchain.last_block
+    last_block_string = json.dumps(blockchain.last_block, sort_keys=True)
 
-        #Return a message indicating success or failure.  Remember, a valid proof should fail for all senders 
-        # except the first.
-        block_string = json.dumps(blockchain.last_block, sort_keys=True)
+    if blockchain.valid_proof(last_block_string, proof):
 
-        if blockchain.valid_proof(block_string, proof):
-            # Forge the new Block by adding it to the chain with the proof
-            previous_hash = blockchain.hash(blockchain.last_block)
-            new_block = blockchain.new_block(proof, previous_hash)    
+        # Forge the new Block by adding it to the chain with the proof
+        previous_hash = blockchain.hash(blockchain.last_block)
+        new_block = blockchain.new_block(proof, previous_hash)    
 
-            response = {
-                # TODO: Send a JSON response with the new 
-                "block": new_block,
-                "message": "New Block Forged"
-            }
+        response = {
+            # TODO: Send a JSON response with the new 
+            "block": new_block,
+            "message": "New Block Forged"
+        }
 
-            return jsonify(response), 200
-        else:
-            response = {"message": "Invalid or already submitted proof"}
-            return jsonify(response), 200
+        return jsonify(response), 200
+    else:
+        response = {"message": "Invalid or already submitted proof"}
+        return jsonify(response), 200
 
 
 #endpoint that returns the chain and it's current length
@@ -234,13 +226,11 @@ def full_chain():
     return jsonify(response), 200
 
 @app.route('/last_block', methods=['GET'])
-def last_block():   
-
-    last_block = blockchain.last_block
+def last_block():       
 
     response = {
         # TODO: Send a JSON response with the new block
-       "last_block": last_block
+       "last_block": blockchain.last_block
     }
 
     return jsonify(response), 200

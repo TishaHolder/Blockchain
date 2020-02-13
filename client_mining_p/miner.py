@@ -25,7 +25,7 @@ def proof_of_work(self, block):
     proof = 0
 
     #this will run until it finds one that works
-    while self.valid_proof(block_string, proof) is False:
+    while valid_proof(block_string, proof) is False:
         #increments the proof value until the hash with the required difficulty has been generated.
         proof += 1
 
@@ -85,10 +85,15 @@ if __name__ == '__main__':
             break
 
         # TODO: Get the block from `data` and use it to look for a new proof
+        new_block = data['last_block']
+        print(f'Last Block: {new_block}')
+
         # new_proof = ???
-        last_block = data['last_block']
-        print(f'Last Block: {last_block}')
-        new_proof = proof_of_work(last_block)
+        new_proof = proof_of_work(new_block)
+
+        print(f'Proof found: {new_proof}')
+       
+        #breakpoint() used to pause the program to examine what data contained        
 
         # When found, POST it to the server {"proof": new_proof, "id": id}
         post_data = {"proof": new_proof, "id": id}
