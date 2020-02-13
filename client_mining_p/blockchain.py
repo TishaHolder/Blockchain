@@ -191,33 +191,36 @@ def mine():
     #Use `data = request.get_json()` to pull the data out of the POST
     data = request.get_json()
 
-    #Check that 'proof', and 'id' are present
+    #Check that 'proof', and 'id' are present   
     #return a 400 error using `jsonify(response)` with a 'message'
     if 'proof' not in data or 'id' not in data:
-        response = {"message": "proof and id are not present"}
+        response = {"message": "proof and/or id are not present"}
         return jsonify(response), 400
 
-    proof = data['proof']
-    id = data['id']
+    #Check that 'proof', and 'id' are present
+    if 'proof' in data and 'id' in data:
+        proof = data['proof']
+        id = data['id']
 
-    #Return a message indicating success or failure.  Remember, a valid proof should fail for all senders 
-    # except the first.
-    block_string = json.dumps(blockchain.last_block, sort_keys=True)
+        #Return a message indicating success or failure.  Remember, a valid proof should fail for all senders 
+        # except the first.
+        block_string = json.dumps(blockchain.last_block, sort_keys=True)
 
-    if blockchain.valid_proof(block_string, proof):
-        # Forge the new Block by adding it to the chain with the proof
-        previous_hash = blockchain.hash(blockchain.last_block)
-        new_block = blockchain.new_block(proof, previous_hash)    
+        if blockchain.valid_proof(block_string, proof):
+            # Forge the new Block by adding it to the chain with the proof
+            previous_hash = blockchain.hash(blockchain.last_block)
+            new_block = blockchain.new_block(proof, previous_hash)    
 
-        response = {
-            # TODO: Send a JSON response with the new 
-        "block": new_block
-        }
+            response = {
+                # TODO: Send a JSON response with the new 
+                "block": new_block,
+                "message": "New Block Forged"
+            }
 
-        return jsonify(response), 200
-    else:
-        response = {"message": "invalid proof"}
-        return jsonify(response), 200
+            return jsonify(response), 200
+        else:
+            response = {"message": "Invalid or already submitted proof"}
+            return jsonify(response), 200
 
 
 #endpoint that returns the chain and it's current length
