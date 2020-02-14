@@ -19,7 +19,7 @@ class Blockchain(object):
         # Create the genesis block - block automatically generated when the blockchain is initialized
         # initialize the previous_hash for the genesis block to an invalid hash to indicate that it doesn't 
         # have a previous block (I'm a teapot is not valid)
-        self.new_block(previous_hash = "I'm a teapot.", proof=100)
+        self.new_block(previous_hash = "I'm a teapot.", proof = 100)
 
     def new_block(self, proof, previous_hash=None):
         """
@@ -190,9 +190,13 @@ def mine():
 
     #Use `data = request.get_json()` to pull the data out of the POST
     data = request.get_json()
-    #breakpoint()
+    
+    if 'proof' not in data or 'id' not in data: 
+        response = {"message": "proof and/or id are not present"}
+        return jsonify(response), 400
 
     proof = data['proof']
+    miner_id = data['id']    
 
     last_block = blockchain.last_block
     last_block_string = json.dumps(blockchain.last_block, sort_keys=True)

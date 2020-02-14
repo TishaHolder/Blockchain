@@ -6,7 +6,7 @@ import json
 
 #we want other people to do the mining and we reward them for doing it
 
-def proof_of_work(self, block):
+def proof_of_work(block):
     """
     Simple Proof of Work Algorithm
     Stringify the block and look for a proof.
@@ -74,6 +74,9 @@ if __name__ == '__main__':
     # Run forever until interrupted
     # Continue mining until the app is interrupted.
     while True:
+        #Print messages indicating that this has started and finished.
+        print("mining started")
+
         r = requests.get(url=node + "/last_block")
         # Handle non-json response
         try:
@@ -93,7 +96,10 @@ if __name__ == '__main__':
 
         print(f'Proof found: {new_proof}')
        
-        #breakpoint() used to pause the program to examine what data contained        
+        #breakpoint() used to pause the program to examine what data it contains 
+
+        #Print messages indicating that this has started and finished.
+        print("mining ended")       
 
         # When found, POST it to the server {"proof": new_proof, "id": id}
         post_data = {"proof": new_proof, "id": id}
