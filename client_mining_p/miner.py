@@ -57,12 +57,15 @@ def valid_proof(block_string, proof):
 
 if __name__ == '__main__':
     # What is the server address? IE `python3 miner.py https://server.com/api/`
+    # you can provide an endpoint on the command line when python "name_of_file.py" is entered
     if len(sys.argv) > 1:
         node = sys.argv[1]
     else:
+        #or use node + "end point name"in requests.get and requests.post
         node = "http://localhost:5000"
 
-    # Load ID
+    #open text file and read id
+    # Load or create ID
     f = open("my_id.txt", "r")
     id = f.read()
     print("ID is", id)
@@ -77,9 +80,13 @@ if __name__ == '__main__':
         #Print messages indicating that this has started and finished.
         print("mining started")
 
+        # Get the last block from the server
+        # by visiting the endpoint that is in node + last_block 
         r = requests.get(url=node + "/last_block")
         # Handle non-json response
         try:
+            #use .json to get the json encoded content of a response
+            #encode the results of sending a get request to the last_block endpoint
             data = r.json()
         except ValueError:
             print("Error:  Non-json response")
@@ -88,31 +95,38 @@ if __name__ == '__main__':
             break
 
         # TODO: Get the block from `data` and use it to look for a new proof
-        new_block = data['last_block']
-        print(f'Last Block: {new_block}')
+        #a block object called last_block with index, previous_hash, proof, timestamp, transactions is 
+        # returned from get endpoint
+        last_block = data['last_block']
+        print(f'Last Block: {last_block}')
 
         # new_proof = ???
-        new_proof = proof_of_work(new_block)
+        #send the last block retrieved from the last_block endpoint to proof_of_work method
+        new_proof = proof_of_work(last_block)
 
+        #if proof_of_work returns a valid proof 
         print(f'Proof found: {new_proof}')
        
         #breakpoint() used to pause the program to examine what data it contains 
 
-        #Print messages indicating that this has started and finished.
-        print("mining ended")       
-
         # When found, POST it to the server {"proof": new_proof, "id": id}
         post_data = {"proof": new_proof, "id": id}
 
+        #post the data object with proof and id to the mine endpoint and store the response in r
         r = requests.post(url=node + "/mine", json=post_data)
+
+        #use .json to get the json encoded content of the response from the server
         data = r.json()
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
-        # print the message from the server.
+        # print the error message "Invalid or already submitted proof"
         if data['message'] == 'New Block Forged':            
             
            total_coins = total_coins + 1
            print(f'Number of coins mined: {total_coins}')
         else:            
             print(data['message'])
+
+        #Print messages indicating that this has started and finished.
+        print("mining ended")    
