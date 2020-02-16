@@ -35,12 +35,29 @@ function Wallet(props){
         axios.get(proxyurl + url)
         .then(res => {
            console.log(res.data.chain);
-           setTransactions(res.data.chain.filter(transaction => {
+           let filteredTransactions = res.data.chain.filter(transaction => {
                 //there is a bug here. will not retrieve senders or recipeients other than "0"
                 return transaction.transactions.sender === "0" || transaction.transactions.recipient === "0"
-            })) 
-            
-            console.log("filtered transactions in submit handler", transactions);
+            })
+
+            filteredTransactions.map( transaction => {                
+               
+                /*need to change "0" to userId */
+                return transaction.transactions.sender === "0" ? 
+                tempBalance -= transaction.transactions.amount
+                :
+                /*need to change "0" to userId */
+                transaction.transactions.recipient === "0" ? 
+                tempBalance += transaction.transactions.amount                       
+                : 
+                null
+                
+                
+            })                       
+
+            setTransactions(filteredTransactions);
+            setBalance(tempBalance);
+            console.log("filtered transactions in submit handler", filteredTransactions);
             
         })           
         .catch( err => {
@@ -63,53 +80,31 @@ function Wallet(props){
             <button onClick = {submitHandler}> Get Transactions </button>
 
             <p>
-                Total Balance: {tempBalance}
-            </p>
-           
-
-           {/*} {transactions.length > 0 ?             
-                filteredTransactions = transactions.filter( transaction => {                   
-                    return transaction.transactions.sender  === userId || transaction.transactions.recipient === userId
-                })
-               :
-            null}*/}
+                Total Balance: {balance}
+            </p>         
+         
 
             {transactions.length > 0 ? 
+
+                <div className = "transactions-all"> 
             
-                transactions.map( transaction => {      
+                    {transactions.map( transaction => {                  
                     
-                   
-                 
-                return <div className = "transactions-all">
-                        {/*need to change "0" to userId */}
-                        {transaction.transactions.sender === "0" ? 
-                        tempBalance -= transaction.transactions.amount
-                        :
-                        /*need to change "0" to userId */
-                        transaction.transactions.recipient === "0" ? 
-                        tempBalance += transaction.transactions.amount                       
-                        : 
-                        null
+                        return <div className = "transactions-individual">
+                        <p>Index: {transaction.index}</p>
+                        <p>Proof: {transaction.proof}</p>
+                        <p>Amount: {transaction.transactions.amount}</p>
+                        <p>Sender: {transaction.transactions.sender}</p>
+                        <p>Recipient: {transaction.transactions.recipient}</p>
+                        </div>                  
                         
-                        }                        
+                    }) }
 
-                            <div className = "transactions-individual">
-                                <p>Index: {transaction.index}</p>
-                                <p>Proof: {transaction.proof}</p>
-                                <p>Amount: {transaction.transactions.amount}</p>
-                                <p>Sender: {transaction.transactions.sender}</p>
-                                <p>Recipient: {transaction.transactions.recipient}</p>
-                            </div>
-
-                           
-
-                      </div>
-                })               
+                </div>              
         
             :
 
-            null}
-            
+            null}                       
             
         </div>
 
