@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+.transactions-all{
+  margin-top: 15px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-content: space-between;
+ 
+  
+}
+
+.transactions-individual{
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  height: 200px;
+  border: 1px solid goldenrod;
+  margin-bottom: 15px;
+  
+}
