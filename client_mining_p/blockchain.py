@@ -47,7 +47,7 @@ class Blockchain(object):
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
-            #generate a hash if we did not provide a hash like we did for the genesis hash
+            #generate a previous hash if we did not provide a hash like we did for the genesis hash
             'previous_hash': previous_hash or self.hash(self.chain[-1]),#previous block's hash
         }
 
@@ -76,10 +76,10 @@ class Blockchain(object):
         # We must make sure that the Dictionary is Ordered,
         # or we'll have inconsistent hashes
 
-        # The SHA-256 algorithm is used to generate the hash of the block using all the information in the 
-        # block. block is passed to json.dumps to be converted into a string before being encoded and
+        # The SHA-256 algorithm is used to generate the hash of the block using all the information in the block
+        # The block is passed to json.dumps to be converted into a string before being encoded and
         # passed to hashlib.sha256
-        # sort_keys = True => We must make sure that the Dictionary is Ordered or the hash will all be different
+        # sort_keys = True => We must make sure that the Dictionary is ordered or the hash will all be different
         # if the keys are not in the same order
         string_object = json.dumps(block, sort_keys = True)
 
@@ -105,10 +105,12 @@ class Blockchain(object):
 
     @property
     def last_block(self):
+        #returns the last block in the chain list
+        #self.chain is the list that holds all the blocks inside the chain
         return self.chain[-1]
 
     """
-    proof_of_work method is called from the mine() method on line 153. block is passed to json.dumps to be 
+    proof_of_work method is called from the mine() endpoint  ~ line 191. block is passed to json.dumps to be 
     converted into a string before being passed to the valid_proof method where the SHA-256 algorithm is used to 
     generate or guess the hash with a specific amount of leading zeros. 
     """
@@ -120,6 +122,7 @@ class Blockchain(object):
     desired hash is generated.
     """
     #remove proof of work function from the server
+    #this is now in the miner.py file
     """
     def proof_of_work(self, block):
         
@@ -195,26 +198,33 @@ def mine():
         response = {"message": "proof and/or id are not present"}
         return jsonify(response), 400
 
+    #if proof and id exists, store them in proof and minder_id
     proof = data['proof']
     miner_id = data['id']    
 
+    #convert last_block to a string
     last_block = blockchain.last_block
     last_block_string = json.dumps(blockchain.last_block, sort_keys=True)
 
+    #and check if the last_block and the proof recieved in the POST was valid
     if blockchain.valid_proof(last_block_string, proof):
 
-        # Forge the new Block by adding it to the chain with the proof
+        #hash the last_block to get the previous hash
+        #then forge the new block by passing the proof and the previous_hash to new_block
         previous_hash = blockchain.hash(blockchain.last_block)
         new_block = blockchain.new_block(proof, previous_hash)    
 
+        #send a JSON response with the new_block and a success message
         response = {
-            # TODO: Send a JSON response with the new 
+            # TODO: Send a JSON response with the new_block
             "block": new_block,
             "message": "New Block Forged"
         }
-
+       
         return jsonify(response), 200
     else:
+        #if the last_block and the proof recieved in the POST was not valid
+        #send an error message
         response = {"message": "Invalid or already submitted proof"}
         return jsonify(response), 200
 
@@ -229,6 +239,7 @@ def full_chain():
     }
     return jsonify(response), 200
 
+#endpoint that returns the last_block in the chain
 @app.route('/last_block', methods=['GET'])
 def last_block():       
 

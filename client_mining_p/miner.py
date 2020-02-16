@@ -83,6 +83,7 @@ if __name__ == '__main__':
         # Get the last block from the server
         # by visiting the endpoint that is in node + last_block 
         r = requests.get(url=node + "/last_block")
+
         # Handle non-json response
         try:
             #use .json to get the json encoded content of a response
@@ -116,7 +117,19 @@ if __name__ == '__main__':
         r = requests.post(url=node + "/mine", json=post_data)
 
         #use .json to get the json encoded content of the response from the server
-        data = r.json()
+        # data = r.json()
+
+         # Handle non-json response
+        try:
+            #use .json to get the json encoded content of a response
+            #encode the results of sending a get request to the last_block endpoint
+            data = r.json()
+        except ValueError:
+            print("Error:  Non-json response")
+            print("Response returned:")
+            print(r)
+            break
+
 
         # TODO: If the server responds with a 'message' 'New Block Forged'
         # add 1 to the number of coins mined and print it.  Otherwise,
